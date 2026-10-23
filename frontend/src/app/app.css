@@ -1,0 +1,99 @@
+:host {
+  --accent: #2b59ff;
+  --accent-dark: #1f3fb8;
+  --text: #1a1a2e;
+  --muted: #5a5a72;
+  --error: #c62828;
+  display: block;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  color: var(--text);
+}
+
+.trail-app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.trail-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.trail-header p {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+}
+
+.topic-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.topic-input {
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  border: 1px solid #c7c7d6;
+  border-radius: 8px;
+}
+
+.topic-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.topic-input:disabled {
+  background: #f1f1f5;
+  color: var(--muted);
+}
+
+.submit-button {
+  padding: 0.65rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.message {
+  margin: 0.85rem 0 0;
+  font-size: 0.95rem;
+}
+
+.validation-message {
+  color: var(--error);
+}
+
+.loading-indicator {
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
