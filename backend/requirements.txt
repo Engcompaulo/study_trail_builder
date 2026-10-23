@@ -1,0 +1,7 @@
+django
+gunicorn
+yt-dlp
+requests
+django-cors-headers
+pytest
+hypothesis

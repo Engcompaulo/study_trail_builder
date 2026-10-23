@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.hypothesis/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local / VCS / editor
+.git/
+.gitignore
+*.sqlite3
+.env
+.vscode/
+.idea/
+Dockerfile
+.dockerignore

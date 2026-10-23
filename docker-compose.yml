@@ -1,0 +1,86 @@
+# Study Trail Builder - three-service Docker stack (Req 7.1)
+# Frontend (Angular + nginx) -> Backend (Django + gunicorn) -> AI_Service (Ollama).
+# Developed and run under WSL. All three services are independent containers.
+#
+# Quick start (from this directory, under WSL):
+#   docker compose up --build
+#   docker compose exec ollama ollama pull llama3.2:1b   # one-time model download (Req 7.2)
+# Then open the app at http://localhost:8080
+#
+# Startup order is enforced with depends_on + healthchecks so that if a service
+# fails to become healthy the stack surfaces which one did (Req 7.3, 7.4).
+services:
+  # Angular static build served by nginx; proxies /api/* to the backend.
+  # This is the only service a Learner talks to (host 8080 -> nginx 80).
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      # Wait for the backend to be healthy so the first /api request can succeed.
+      backend:
+        condition: service_healthy
+    healthcheck:
+      # nginx serves the SPA index at / once it is up.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Django REST-style backend served by gunicorn on port 8000.
+  # nginx proxies to it over the compose network, so it need not be published;
+  # 8000 is exposed on the host only to ease debugging.
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      # URL of the local Ollama service inside the compose network (Req 7.5)
+      OLLAMA_URL: http://ollama:11434
+      # Small open-weight model chosen to run locally with no paid API (Req 7.2)
+      OLLAMA_MODEL: llama3.2:1b
+      # Hosts Django will serve; "backend" is the in-network service name used
+      # by the nginx reverse proxy. localhost covers host-side debugging.
+      DJANGO_ALLOWED_HOSTS: backend,localhost,127.0.0.1
+      # Same-origin via the nginx proxy means CORS is normally unused; these
+      # origins only matter for local cross-origin "ng serve" development.
+      CORS_ALLOWED_ORIGINS: http://localhost:8080,http://localhost:4200
+    depends_on:
+      # Wait for Ollama to be healthy; the heuristic fallback still covers any
+      # later AI outage, but this keeps the AI path ready at first request.
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      # gunicorn is up once the TCP port accepts connections. A plain socket
+      # check avoids depending on a specific HTTP route (the API is POST-only).
+      test:
+        - CMD-SHELL
+        - >-
+          python -c "import socket,sys; s=socket.socket();
+          s.settimeout(3); s.connect(('127.0.0.1', 8000)); s.close()"
+          || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Locally hosted Ollama model server (AI_Service).
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      # Persist the pulled model so it survives restarts (no re-download).
+      - ollama_data:/root/.ollama
+    healthcheck:
+      # Ollama answers its version endpoint once the server is ready.
+      test: ["CMD-SHELL", "ollama --version >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# Named volume for the Ollama model cache (durable across restarts).
+volumes:
+  ollama_data:

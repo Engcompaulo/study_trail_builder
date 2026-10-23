@@ -1,0 +1,45 @@
+<main class="trail-app">
+  <header class="trail-header">
+    <h1>Study Trail Builder</h1>
+    <p>Turn any study topic into an ordered, beginner-to-advanced video trail.</p>
+  </header>
+
+  <form class="topic-form" (ngSubmit)="submit()">
+    <label class="sr-only" for="topic">Study topic</label>
+    <input
+      #topicInput
+      id="topic"
+      name="topic"
+      type="text"
+      class="topic-input"
+      placeholder="Enter a study topic (for example, limits in calculus)"
+      autocomplete="off"
+      [maxlength]="maxTopicLength"
+      [(ngModel)]="topic"
+      [disabled]="loading()"
+      aria-describedby="topic-help"
+    />
+    <button
+      type="submit"
+      class="submit-button"
+      [disabled]="loading()"
+    >
+      {{ loading() ? 'Building…' : 'Build trail' }}
+    </button>
+  </form>
+
+  @if (validationMessage(); as message) {
+    <p id="topic-help" class="message validation-message" role="alert">{{ message }}</p>
+  }
+
+  @if (loading()) {
+    <p class="message loading-indicator" role="status" aria-live="polite">
+      Building your study trail…
+    </p>
+  }
+
+  <app-trail-view
+    [trail]="trail()"
+    [errorMessage]="errorMessage()"
+  ></app-trail-view>
+</main>

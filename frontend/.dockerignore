@@ -1,0 +1,15 @@
+# Node / build artifacts
+node_modules/
+dist/
+.angular/
+*.log
+npm-debug.log
+
+# Local / VCS / editor
+.git/
+.gitignore
+.env
+.vscode/
+.idea/
+Dockerfile
+.dockerignore
